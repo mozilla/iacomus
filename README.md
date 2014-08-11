@@ -1,18 +1,32 @@
-# Perfection
+# Telemetry Dashboard Generator
 
-Just a skeleton of a nice dev environment for ClojureScript. Check [this article](http://astashov.github.io/blog/2014/07/30/perfect-clojurescript-development-environment-with-vim/) for details.
+The dashboard can display and compare data collected with Telemetry on weekly basis. The dashboard picks up
+a configuration file, given as a GET parameter, that contains a description of the data format, e.g:
 
-## Usage
-
-Fork it, and start building your own awesome ClojureScript projects, using live reloading, live code execution in the running project in a browser from Vim (or other IDE), automatically running tests when you change files, and automatic compile of the release version.
-
-Then, run:
-
-```bash
-$ lein figwheel dev
-$ lein cljsbuild auto test
-$ lein cljsbuild auto release
-$ lein repl
+```javascript
+{
+  "sort-options": {
+    "values": ["Impact", "Popularity", "Median (ms)", "75% (ms)"],
+    "selected": "Impact"
+  },
+  "filter-options": [
+    {"id": "Application",
+     "values": ["Firefox", "Fennec"],
+     "selected": "Firefox"},
+    {"id": "Platform",
+     "values": ["WINNT", "Linux", "Darwin", "Android"],
+     "selected": "WINNT"},
+    {"id": "Measure",
+     "values": ["startup_MS", "shutdown_MS"],
+     "selected": "startup_MS"},
+    {"id": "Limit",
+     "values": [10, 25, 100],
+     "selected": 10}
+  ],
+  "title": ["Telemetry Add-on Performance", "Bootstrap add-on start up and shut down times"],
+  "main-header": "Name",
+  "header": ["Application", "Platform", "Addon ID", "Version", "Name", "Measure",
+             "Sessions", "Popularity", "Impact", "Median (ms)", "75% (ms)", "95% (ms)"],
+  "url-prefix": "https://s3-us-west-2.amazonaws.com/telemetry-public-analysis/addon_perf/data/weekly_addons"
+}
 ```
-
-Then run in Vim `:Piggieback 9000` (make sure you have [vim-fireplace](https://github.com/tpope/vim-fireplace) installed), and open `htto://localhost:3449/index.html` in the browser. You are good to go!

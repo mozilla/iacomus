@@ -1,6 +1,6 @@
 # Telemetry Dashboard Generator
 
-The clojurescript/om based [http://vitillo.github.io/iacomus/resources/public/index.html?config=sample_config.json](dashboard) can display and compare data collected with Telemetry on a weekly basis. It picks up
+The clojurescript/om based [dashboard](http://vitillo.github.io/iacomus/resources/public/index.html?config=sample_config.json) can display and compare data collected with Telemetry on a weekly basis. It picks up
 a configuration file specified through a GET parameter that contains a description of the data format, e.g:
 
 ```javascript

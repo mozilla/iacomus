@@ -1,7 +1,7 @@
 # Telemetry Dashboard Generator
 
-The clojurescript/om based [dashboard](http://vitillo.github.io/iacomus/resources/public/index.html?config=sample_config.json) can display and compare data collected with Telemetry on a weekly basis. It picks up
-a configuration file specified through a GET parameter that contains a description of the data format, e.g:
+The clojurescript/om based [dashboard](http://vitillo.github.io/iacomus/resources/public/index.html?config=sample_config.json) can display and compare data collected with [Telemetry](https://wiki.mozilla.org/Telemetry) on a weekly basis. It picks up
+a configuration file, specified through a GET parameter, that contains a description of the data format, e.g:
 
 ```javascript
 {
@@ -37,4 +37,4 @@ Where
 - `main-header` is the name of the main column, i.e. the primary key used to identify uniquely a row;
 - `url-prefix` is the url prefix that the dashboard uses to concatenate the date of the requested dataset.
 
-The filename for a dataset of a given week should follow the pattern: `url-prefix20140804.csv.gz`, where `20140804` is the date of Monday of that week.
+The filename for a dataset of a given week should follow the pattern: `url-prefix20140804.csv.gz`, where `20140804` is the date of Monday.

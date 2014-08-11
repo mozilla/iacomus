@@ -1,7 +1,7 @@
 # Telemetry Dashboard Generator
 
-The dashboard can display and compare data collected with Telemetry on weekly basis. The dashboard picks up
-a configuration file, given as a GET parameter, that contains a description of the data format, e.g:
+The clojurescript/om based [http://vitillo.github.io/iacomus/resources/public/index.html?config=sample_config.json](dashboard) can display and compare data collected with Telemetry on a weekly basis. It picks up
+a configuration file specified through a GET parameter that contains a description of the data format, e.g:
 
 ```javascript
 {
@@ -30,3 +30,11 @@ a configuration file, given as a GET parameter, that contains a description of t
   "url-prefix": "https://s3-us-west-2.amazonaws.com/telemetry-public-analysis/addon_perf/data/weekly_addons"
 }
 ```
+
+Where
+- `sort-options` specifies the fields the dashboard should allow sorting on;
+- `filter-options` is a list of filter descriptors which specifiy the filterable columns and the allowed values to filter on;
+- `main-header` is the name of the main column, i.e. the primary key used to identify uniquely a row;
+- `url-prefix` is the url prefix that the dashboard uses to concatenate the date of the requested dataset.
+
+The filename for a dataset of a given week should follow the pattern: `url-prefix20140804.csv.gz`, where `20140804` is the date of Monday of that week.

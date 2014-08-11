@@ -9,7 +9,7 @@
 (defn filter-rows [header rows filters]
   (let [filter-map (filter-map filters)
         tuples (vec (filter-tuples (butlast filters) header))
-        limit (:selected (get filter-map "Limit"))
+        limit (:selected (get filter-map "Limit" 10))
         filter-row? (fn [row index] ;ugly SoB needed to improve performances
                       (loop [index 0]
                         (if (< index (count tuples))
@@ -19,7 +19,7 @@
                               (recur (+ index 1))))
                           true))
                       )]
-    (take (:selected (get filter-map "Limit")) (filter filter-row? rows))))
+    (take limit (filter filter-row? rows))))
 
 (defn get-rank-mapping [main-header header rows]
   (let [header-map (header-to-index-map header)

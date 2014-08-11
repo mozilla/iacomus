@@ -95,6 +95,7 @@
   (try
    (.toArrays (.-csv js/$) data)
    (catch js/Error e
+     (println e)
      [])))
 
 (let [csv-store (atom {})]

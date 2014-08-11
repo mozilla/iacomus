@@ -37,4 +37,4 @@ Where
 - `main-header` is the name of the main column, i.e. the primary key used to identify uniquely a row;
 - `url-prefix` is the url prefix that the dashboard uses to concatenate the date of the requested dataset.
 
-The filename for a dataset of a given week should follow the pattern: `url-prefix20140804.csv.gz`, where `20140804` is the date of Monday.
+The filename for a dataset of a given week should follow the pattern: `url-prefix20140804.csv.gz`, where `20140804` is the date of the Monday of the requested week.

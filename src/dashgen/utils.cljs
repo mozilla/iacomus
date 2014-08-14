@@ -93,10 +93,12 @@
 
 (defn parse-csv [data]
   (try
-   (.toArrays (.-csv js/$) data)
-   (catch js/Error e
-     (println e)
-     [])))
+    (let [arrays (.toArrays (.-csv js/$) data)]
+      (.shift arrays)
+      arrays)
+    (catch js/Error e
+      (println e)
+      [])))
 
 (let [csv-store (atom {})]
   (defn load-csv [prefix date-key date-offset]

@@ -4,11 +4,18 @@
             [dashgen.utils :refer [get-dates header-to-index-map filter-map index-of pretty-date]]))
 
 (defn filter-tuples [filters headers]
-  (map (fn [{:keys [selected id]}] [(index-of id headers) selected]) filters))
+  (->> filters
+       (filter (fn [{:keys [selected id]}]
+                 (cond
+                   (= id "Limit") false
+                   (= selected "") false
+                   :else true)))
+       (map (fn [{:keys [selected id]}]
+              [(index-of id headers) selected]))))
 
 (defn filter-rows [header rows filters]
   (let [filter-map (filter-map filters)
-        tuples (vec (filter-tuples (butlast filters) header))
+        tuples (vec (filter-tuples filters header))
         limit (:selected (get filter-map "Limit" 10))
         filter-row? (fn [row index] ;ugly SoB needed to improve performances
                       (loop [index 0]

@@ -18,7 +18,7 @@
      "selected": 10}
   ],
   "title": ["Telemetry Add-on Performance", "Bootstrap add-on start up and shut down times"],
-  "main-header": "Name",
+  "primary-key": ["Application", "Platform", "Addon ID", "Version", "Measure"],
   "header": ["Application", "Platform", "Addon ID", "Version", "Name", "Measure",
              "Sessions", "Popularity", "Impact", "Median (ms)", "75% (ms)", "95% (ms)"],
   "url-prefix": "https://s3-us-west-2.amazonaws.com/telemetry-public-analysis/addon_perf/data/weekly_addons"

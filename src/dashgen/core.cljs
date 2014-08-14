@@ -159,7 +159,7 @@
                                         :past-week (:past-week app)
                                         :filter-options (:filter-options app)
                                         :sort-options (:sort-options app)
-                                        :main-header (:main-header app)
+                                        :primary-key (:primary-key app)
                                         :header (:header app)
                                         :date-offset (:date-offset app)}))))))
 

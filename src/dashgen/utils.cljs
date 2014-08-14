@@ -7,6 +7,9 @@
 
 (enable-console-print!)
 
+(defn multi-nth [values indices]
+  (map (partial nth values) indices))
+
 (defn GET [url]
   (let [ch (chan 1)]
     (xhr/send url

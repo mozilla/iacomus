@@ -57,7 +57,7 @@
       nil)))
 
 (defn coerce [value]
-  (let [num (js/parseInt value)]
+  (let [num (js/parseFloat value)]
     (if (js/isNaN num)
       value
       num)))
@@ -77,7 +77,9 @@
   (reduce conj (map-indexed (fn [idx in] {(:id in) (assoc in :index idx)}) filters)))
 
 (defn sort-array-by-index! [array index]
-  (let [sortfn (fn [a b] (- (aget b index) (aget a index)))]
+  (let [sortfn (fn [a b]
+                 (- (coerce (aget b index))
+                    (coerce (aget a index))))]
     (.sort array sortfn)))
 
 (defn sort-raw-data! [app data]

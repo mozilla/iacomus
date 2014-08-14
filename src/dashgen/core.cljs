@@ -13,8 +13,7 @@
 (def app-state
   (atom
     {:date-offset [0]
-     :throbber ["visible"]
-     :severe-error [false]}))
+     :throbber ["visible"]}))
 
 (defn throbber-status [throbber]
   (if (= (first throbber) "visible")
@@ -107,15 +106,16 @@
                           :throbber throbber}
                          {:init-state {:event-channel event-channel}})))))
 
-(defn error-layout []
+(defn error-layout [message]
   (dom/div #js {:className "row"}
            (dom/div #js {:className "col-md-12"}
                     (dom/img #js {:src "images/monkey.gif"})
                     (dom/h1 #js {:className "text-danger"} "Whoops!")
                     (dom/h3 nil "The configuration file is either missing or invalid!")
                     (dom/h5 nil
-                            "Use the config parameter to specify it, e.g.:"
-                            (dom/code nil "index.html?config=http://yourconfig.json")))))
+                            "Use the config parameter to specify it, e.g.: "
+                            (dom/code nil "index.html?config=http://yourconfig.json"))
+                    (dom/h5 nil (str message)))))
 
 (defn navbar-widget [app owner]
   (reify
@@ -139,7 +139,9 @@
 
     om/IRenderState
     (render-state [this {:keys [event-channel]}]
-      (if-not (get-in app [:severe-error 0])
+      (if-let [error (get-in app [:severe-error 0])]
+        (dom/div #js {:className "container"}
+                 (error-layout error))
         (dom/div #js {:className "container"}
                  (om/build header-title-widget
                            (:title app))
@@ -159,8 +161,6 @@
                                         :sort-options (:sort-options app)
                                         :main-header (:main-header app)
                                         :header (:header app)
-                                        :date-offset (:date-offset app)}))
-        (dom/div #js {:className "container"}
-                 (error-layout))))))
+                                        :date-offset (:date-offset app)}))))))
 
 (om/root navbar-widget app-state {:target (. js/document (getElementById "app"))})

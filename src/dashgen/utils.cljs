@@ -129,9 +129,9 @@
             config (try
                      (keywordize-keys (js->clj (.parse js/JSON data)))
                      (catch js/Error e
+                       (om/update! app :severe-error [e])
                        nil))]
-        (if (seq config)
-          (om/transact! app #(merge %1 config))
-          (om/update! app :severe-error [true])))
-      (om/update! app :severe-error [true]))))
+        (when (seq config)
+          (om/transact! app #(merge %1 config))))
+      (om/update! app :severe-error ["Configuration file is missing!"]))))
 

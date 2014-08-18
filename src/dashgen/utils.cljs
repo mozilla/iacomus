@@ -30,9 +30,22 @@
         zpad #(str (if (< %1 10) "0" "") %1)]
     (str year (zpad month) (zpad day))))
 
-(defn get-dates [base-offset]
-  (let [week-offset (+ (- (* base-offset 7)) 7)
-        yesterday (let [tmp (js/Date.)]
+(defn get-prev-week [date]
+  (let [tmp (js/Date. date)]
+    (.setDate tmp (- (.getDate tmp) 7))
+    tmp))
+
+(defn get-next-week [date]
+  (let [tmp (js/Date. date)]
+    (.setDate tmp (+ (.getDate tmp) 7))
+    tmp))
+
+(defn trimmed-date-str [date]
+  (-> date str (subs 0 15)))
+
+(defn get-dates [base-date]
+  (let [week-offset 7
+        yesterday (let [tmp (js/Date. base-date)]
                     (.setDate tmp (- (.getDate tmp) week-offset))
                     tmp)
         dow-offset (rem (- (.getUTCDay yesterday) 1) 7)
@@ -106,9 +119,9 @@
       [])))
 
 (let [csv-store (atom {})]
-  (defn load-csv [prefix date-key date-offset]
+  (defn load-csv [prefix date-key base-date]
     (go
-      (let [dates (-> date-offset get-dates date-key)
+      (let [dates (-> base-date get-dates date-key)
             filename (str prefix "_" (-> dates first yyyymmdd) ".csv.gz")]
         (if-let [file (get-in @csv-store [filename])]
           file
@@ -116,17 +129,17 @@
             (swap! csv-store conj [filename data])
             data))))))
 
-(defn load-data! [app date-offset]
+(defn load-data! [app base-date]
   (go
     (let [url-prefix (:url-prefix @app)
-          current-week (<! (load-csv url-prefix :current-week date-offset))
-          past-week (<! (load-csv url-prefix :past-week date-offset))]
+          current-week (<! (load-csv url-prefix :current-week base-date))
+          past-week (<! (load-csv url-prefix :past-week base-date))]
       (when (seq current-week) (sort-raw-data! app current-week))
       (when (seq past-week) (sort-raw-data! app past-week))
       (om/transact! app #(assoc %1
                                 :current-week current-week
                                 :past-week past-week
-                                :date-offset [date-offset]
+                                :base-date [(trimmed-date-str base-date)]
                                 :throbber ["hidden"])))))
 
 (defn query-string []
@@ -150,16 +163,21 @@
     (params->query-string params)))
 
 (defn update-state-from-query-string! [query-string state]
+  ;update only relevant part of the state
   (let [params (query-string->params query-string)]
     (when-let [selected (get params "sort")]
-      (om/update! state [:sort-options :selected] selected)
-      (sort-data! state))
+      (when (not= selected (get-in @state [:sort-options :selected]))
+        (om/update! state [:sort-options :selected] selected)
+        (sort-data! state)))
+    (when-let [selected (get params "base-date")]
+      (when (not= selected (get-in @state [:base-date 0]))
+       (om/update! state :throbber ["visible"])
+       (load-data! state selected)))
     (doall
       (map-indexed (fn [idx descr]
-                     (let [id (:id descr)
-                           selected (get params id)]
-                       (when selected
-                         (om/update! state [:filter-options idx :selected] selected))))
+                     (when-let [selected (get params (:id descr))]
+                       (when (not= selected (get-in @state [:filter-options idx :selected]))
+                        (om/update! state [:filter-options idx :selected] selected))))
                    (:filter-options @state)))))
 
 (defn load-config! [app]

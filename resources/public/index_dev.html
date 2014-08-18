@@ -9,7 +9,7 @@
     <div id="app"></div>
     <script>
       function getParameterByName(name) {
-        var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+        var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.hash);
         return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
       }
     </script>

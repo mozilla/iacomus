@@ -129,6 +129,39 @@
                                 :date-offset [date-offset]
                                 :throbber ["hidden"])))))
 
+(defn query-string []
+  (.substring (aget js/window "location" "hash") 1))
+
+(defn query-string->params
+  ([]
+   (query-string->params (query-string)))
+
+  ([input]
+   (let [kv-seq (re-seq #"[?&]?([^=&]*)=([^=&]*)" input)
+         params (reduce conj {} (map (fn [[m k v]] {k v}) kv-seq))]
+     params)))
+
+(defn params->query-string [params]
+  (apply str "#?" (map (fn [[key value]] (str (name key) "=" value "&")) params)))
+
+(defn edit-query-string [params]
+  (let [current-params (query-string->params)
+        params (merge current-params params)]
+    (params->query-string params)))
+
+(defn update-state-from-query-string! [query-string state]
+  (let [params (query-string->params query-string)]
+    (when-let [selected (get params "sort")]
+      (om/update! state [:sort-options :selected] selected)
+      (sort-data! state))
+    (doall
+      (map-indexed (fn [idx descr]
+                     (let [id (:id descr)
+                           selected (get params id)]
+                       (when selected
+                         (om/update! state [:filter-options idx :selected] selected))))
+                   (:filter-options @state)))))
+
 (defn load-config! [app]
   (go
     (if-let [filename (js/getParameterByName "config")]
@@ -141,4 +174,3 @@
         (when (seq config)
           (om/transact! app #(merge %1 config))))
       (om/update! app :severe-error ["Configuration file is missing!"]))))
-

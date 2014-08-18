@@ -6,9 +6,10 @@
             [goog.net.XhrIo :as xhr]
             [clojure.set]
             [dashgen.utils :refer [GET yyyymmdd get-dates index-of
-                                   sort-data! load-data! load-csv load-config!]]
+                                   sort-data! load-data! load-csv load-config!
+                                   params->query-string query-string->params edit-query-string
+                                   update-state-from-query-string! query-string]]
             [dashgen.grid :refer [grid-widget]]))
-
 
 (def app-state
   (atom
@@ -30,7 +31,10 @@
                    #js {:id id
                         :value selected
                         :disabled (throbber-status throbber)
-                        :onChange #(om/update! data :selected (.. %1 -target -value))}
+                        :onChange (fn [e]
+                                    (let [selected (.. e -target -value)
+                                          new-query-string (edit-query-string {id selected})]
+                                      (aset js/window "location" "hash" new-query-string)))}
                    (om/build-all select-option values))))
 
 (defn sort-select [throbber {:keys [values file-prefixes selected] :as data} event-channel]
@@ -38,10 +42,9 @@
          #js {:value selected
               :disabled (throbber-status throbber)
               :onChange (fn [e]
-                          (let [selected (.. e -target -value)]
-                            (go
-                              (om/update! data :selected selected)
-                              (put! event-channel [:sort selected]))))}
+                          (let [selected (.. e -target -value)
+                                new-query-string (edit-query-string {"sort" selected})]
+                            (aset js/window "location" "hash" new-query-string)))}
          (om/build-all select-option values)))
 
 (defn filters-sorter-widget [{:keys [filter-options sort-options throbber]} owner]
@@ -125,12 +128,15 @@
 
     om/IWillMount
     (will-mount [_]
+      (aset js/window "onpopstate" (fn [e]
+                                     (let [query (query-string)]
+                                      (update-state-from-query-string! query app))))
+
       (let [event-channel (om/get-state owner :event-channel)]
         (go (loop []
               (let [[header message] (<! event-channel)]
                 (cond
                   (= header :fetch) (<! (load-data! app message))
-                  (= header :sort) (sort-data! app)
                   :else (println "Error: Unknown message received"))
                 (recur))))
         (go
@@ -164,3 +170,4 @@
                                         :date-offset (:date-offset app)}))))))
 
 (om/root navbar-widget app-state {:target (. js/document (getElementById "app"))})
+

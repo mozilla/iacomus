@@ -94,6 +94,6 @@
                             (grid-header header)
                             (grid-body current-filtered-rows header ranking-diff))
                  (date-label :past-week base-date)
-                 (dom/table #js {:className "table"}
+                 (dom/table #js {:className "table table-hover table-condensed table-responsive"}
                             (grid-header header)
                             (grid-body past-filtered-rows header)))))))

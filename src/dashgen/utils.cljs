@@ -145,40 +145,51 @@
 (defn query-string []
   (.substring (aget js/window "location" "hash") 1))
 
-(defn query-string->params
-  ([]
-   (query-string->params (query-string)))
-
-  ([input]
-   (let [kv-seq (re-seq #"[?&]?([^=&]*)=([^=&]*)" input)
+(defn query-string->params []
+   (let [input (query-string)
+         kv-seq (re-seq #"[?&]?([^=&]*)=([^=&]*)" input)
          params (reduce conj {} (map (fn [[m k v]] {k v}) kv-seq))]
-     params)))
+     params))
 
 (defn params->query-string [params]
   (apply str "#?" (map (fn [[key value]] (str (name key) "=" value "&")) params)))
 
 (defn edit-query-string [params]
   (let [current-params (query-string->params)
-        params (merge current-params params)]
-    (params->query-string params)))
+        params (merge current-params params)
+        new-query-string (params->query-string params)]
+    (aset js/window "location" "hash" new-query-string)))
 
-(defn update-state-from-query-string! [query-string state]
+(defn update-state-from-query-string! [state]
   ;update only relevant part of the state
-  (let [params (query-string->params query-string)]
-    (when-let [selected (get params "sort")]
-      (when (not= selected (get-in @state [:sort-options :selected]))
-        (om/update! state [:sort-options :selected] selected)
-        (sort-data! state)))
-    (when-let [selected (get params "base-date")]
-      (when (not= selected (get-in @state [:base-date 0]))
-       (om/update! state :throbber ["visible"])
-       (load-data! state selected)))
-    (doall
-      (map-indexed (fn [idx descr]
-                     (when-let [selected (get params (:id descr))]
-                       (when (not= selected (get-in @state [:filter-options idx :selected]))
-                        (om/update! state [:filter-options idx :selected] selected))))
-                   (:filter-options @state)))))
+  (go
+    (let [params (query-string->params)]
+      (when-let [selected (get params "sort")]
+        (when (not= selected (get-in @state [:sort-options :selected]))
+          (om/update! state [:sort-options :selected] selected)
+          (sort-data! state)))
+      (when-let [selected (get params "base-date")]
+        (when (not= selected (get-in @state [:base-date 0]))
+          (om/update! state :throbber ["visible"])
+          (<! (load-data! state selected))))
+      (doall
+        (map-indexed (fn [idx descr]
+                       (when-let [selected (get params (:id descr))]
+                         (when (not= selected (get-in @state [:filter-options idx :selected]))
+                           (om/update! state [:filter-options idx :selected] selected))))
+                     (:filter-options @state))))))
+
+(defn update-query-string-from-state [state]
+  (let [params {}
+        params (if-let [selected (get-in @state [:sort-options :selected])]
+                     (assoc params "sort" selected)
+                     params)
+        params (if-let [selected (get-in @state [:base-date 0])]
+                     (assoc params "base-date" selected)
+                     params)
+        params (into params (for [descr (:filter-options @state)]
+                              {(get descr :id) (get descr :selected)}))]
+    (edit-query-string params)))
 
 (defn load-config! [app]
   (go
@@ -190,5 +201,15 @@
                        (om/update! app :severe-error [e])
                        nil))]
         (when (seq config)
-          (om/transact! app #(merge %1 config))))
+          ; configurations are merged with replacement on top of each other:
+          ; app-state -> loaded-config -> query-string
+
+          (om/transact! app (fn [state] (-> state (merge config))))
+          (<! (update-state-from-query-string! app))
+          (when-not (get-in @app [:base-date 0])
+            (<! (load-data! app (-> (js/Date.) trimmed-date-str))))
+          (update-query-string-from-state app)
+          (aset js/window "onpopstate" (fn [e]
+                                       (let [query (query-string)]
+                                         (update-state-from-query-string! app))))))
       (om/update! app :severe-error ["Configuration file is missing!"]))))

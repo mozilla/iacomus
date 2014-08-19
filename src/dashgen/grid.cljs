@@ -19,14 +19,13 @@
         tuples (vec (filter-tuples filters header))
         limit (:selected (get filter-map "Limit" 10))
         filter-row? (fn [row index] ;ugly SoB needed to improve performances
-                      (loop [index 0]
-                        (if (< index (count tuples))
-                          (let [[index selected] (get tuples index)]
+                      (loop [cnt 0]
+                        (if (< cnt (count tuples))
+                          (let [[index selected] (get tuples cnt)]
                             (if (not= (aget row index) selected)
                               false
-                              (recur (+ index 1))))
-                          true))
-                      )]
+                              (recur (+ cnt 1))))
+                          true)))]
     (take limit (filter filter-row? rows))))
 
 (defn get-rank-mapping [primary-key header rows]

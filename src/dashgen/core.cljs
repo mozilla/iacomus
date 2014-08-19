@@ -164,4 +164,3 @@
       )))
 
 (om/root navbar-widget app-state {:target (. js/document (getElementById "app"))})
-

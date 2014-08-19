@@ -148,7 +148,10 @@
 (defn query-string->params []
    (let [input (query-string)
          kv-seq (re-seq #"[?&]?([^=&]*)=([^=&]*)" input)
-         params (reduce conj {} (map (fn [[m k v]] {k v}) kv-seq))]
+         decode #(js/decodeURIComponent %)
+         params (reduce conj {} (map (fn [[_ k v]]
+                                       {(decode k) (decode v)})
+                                     kv-seq))]
      params))
 
 (defn params->query-string [params]
@@ -193,7 +196,7 @@
 
 (defn load-config! [app]
   (go
-    (if-let [filename (js/getParameterByName "config")]
+    (if-let [filename (get (query-string->params) "config")]
       (let [data (<! (GET filename))
             config (try
                      (keywordize-keys (js->clj (.parse js/JSON data)))

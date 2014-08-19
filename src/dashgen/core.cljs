@@ -112,7 +112,7 @@
                     (dom/h3 nil "The configuration file is either missing or invalid!")
                     (dom/h5 nil
                             "Use the config parameter to specify it, e.g.: "
-                            (dom/code nil "index.html?config=http://yourconfig.json"))
+                            (dom/code nil "index.html#?config=http://yourconfig.json"))
                     (dom/h5 nil (str message)))))
 
 (defn loading-layout []

@@ -16,6 +16,8 @@
             [lein-figwheel "0.1.3-SNAPSHOT"]
             [com.cemerick/austin "0.1.4"]]
 
+  :repl-options  {:nrepl-middleware  [cemerick.piggieback/wrap-cljs-repl]}
+
   :figwheel {
     :http-server-root "public"
     :port 3449

@@ -52,7 +52,7 @@
     (dom/div #js {:className "row"}
              (dom/div #js {:className "col-md-12"}
                       (dom/h4 #js {:className "text-center"}
-                              (str "Data for the week of " (pretty-date (get dates 0)) " to " (pretty-date (get dates 1))))))))
+                              (str "Data for " (pretty-date (get dates 0))))))))
 
 (defn legend [] (dom/div #js {:className "row text-center"}
                          (dom/span #js {:className "text-danger"} "Moved up in rank  ")

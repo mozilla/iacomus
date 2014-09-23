@@ -146,16 +146,19 @@
   (.substring (aget js/window "location" "hash") 1))
 
 (defn query-string->params []
-   (let [input (query-string)
-         kv-seq (re-seq #"[?&]?([^=&]*)=([^=&]*)" input)
-         decode #(js/decodeURIComponent %)
-         params (reduce conj {} (map (fn [[_ k v]]
-                                       {(decode k) (decode v)})
-                                     kv-seq))]
-     params))
+  (let [input (query-string)
+        kv-seq (re-seq #"[?&]?([^=&]*)=([^=&]*)" input)
+        params (reduce conj {} (map (fn [[_ k v]]
+                                      {k v})
+                                    kv-seq))]
+    params))
 
 (defn params->query-string [params]
-  (apply str "#?" (map (fn [[key value]] (str (name key) "=" value "&")) params)))
+  (let [params (->> params
+                    (map (fn [[key value]] (str (name key) "=" value "&")))
+                    (apply str)
+                    (js/encodeURIComponent))]
+    (apply str "#?" params)))
 
 (defn edit-query-string [params]
   (let [current-params (query-string->params)

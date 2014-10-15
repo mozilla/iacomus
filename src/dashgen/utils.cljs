@@ -94,8 +94,13 @@
 
 (defn sort-array-by-index! [array index]
   (let [sortfn (fn [a b]
-                 (- (coerce (aget b index))
-                    (coerce (aget a index))))]
+                 (let [a (coerce (aget a index))
+                       b (coerce (aget b index))
+                       op (if (string? a) < >)]
+                   (cond
+                    (op b a) 1
+                    (= b a) 0
+                    :else -1)))]
     (.sort array sortfn)))
 
 (defn sort-raw-data! [app data]

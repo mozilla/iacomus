@@ -55,8 +55,8 @@
                               (str "Data for " (pretty-date (get dates 0))))))))
 
 (defn legend [] (dom/div #js {:className "row text-center"}
-                         (dom/span #js {:className "text-danger"} "Moved up in rank  ")
-                         (dom/span #js {:className "text-success"} "Moved down in rank  ")
+                         (dom/span #js {:className "text-success"} "Moved up in rank  ")
+                         (dom/span #js {:className "text-danger"} "Moved down in rank  ")
                          (dom/span #js {:className "text-warning"} "New")))
 
 (defn grid-header [header]

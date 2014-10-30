@@ -77,9 +77,9 @@
     (if (js/isNaN num)
       value
       (-> num
-          (* 100)
+          (* 1000)
           js/Math.round
-          (/ 100)))))
+          (/ 1000)))))
 
 (defn time-wrap [fun]
   (fn [& args]

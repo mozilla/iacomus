@@ -76,7 +76,10 @@
   (let [num (js/parseFloat value)]
     (if (js/isNaN num)
       value
-      num)))
+      (-> num
+          (* 100)
+          js/Math.round
+          (/ 100)))))
 
 (defn time-wrap [fun]
   (fn [& args]

@@ -2,7 +2,7 @@
   (:require [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
             [dashgen.utils :refer [get-dates header-to-index-map multi-nth
-                                   filter-map index-of pretty-date]]))
+                                   filter-map index-of pretty-date coerce]]))
 
 (defn filter-tuples [filters headers]
   (->> filters
@@ -66,7 +66,8 @@
 
 (defn grid-body-row [row ranking]
   (apply dom/tr #js {:className ranking}
-         (map (partial dom/td nil) row)))
+         (map (partial dom/td nil)
+              (map coerce row))))
 
 (defn grid-body-row-NA [header]
   (dom/tr nil (dom/td #js {:colSpan (count header)} "No data found with the requested filtering criteria")))

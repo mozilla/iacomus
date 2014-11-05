@@ -151,7 +151,7 @@
                                 :throbber ["hidden"])))))
 
 (defn query-string []
-  (.substring (aget js/window "location" "hash") 1))
+  (js/decodeURIComponent (.substring (aget js/window "location" "hash") 1)))
 
 (defn query-string->params []
   (let [input (query-string)

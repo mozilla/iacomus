@@ -85,6 +85,29 @@
                        (str title " ")
                        (dom/small nil subtitle))))))
 
+(defn header-description-widget [[description link] owner]
+  (println link)
+  (reify
+    om/IRender
+    (render [_]
+      (dom/h5 nil
+              description
+              (when link (dom/span nil
+                                   " "
+                                   (dom/a #js {:href link} "More information")
+                                   "."))))))
+
+(defn header-field-description-widget [{:keys [header field-description]} owner]
+  (reify
+    om/IRender
+    (render [_]
+      (let [doc (map #(str %1 ": " %2) header field-description)]
+        (dom/div nil
+                 (dom/h5 nil "Field documentation:")
+                 (dom/div nil
+                          (apply dom/ul nil
+                                 (map (partial dom/li nil) doc))))))))
+
 (defn body-toolbar-widget [{:keys [base-date throbber]} owner]
   (reify
     om/IRender
@@ -146,6 +169,14 @@
           (dom/div #js {:className "container"}
                    (om/build header-title-widget
                              (:title app))
+                   (when (:description app)
+                     (om/build header-description-widget
+                               (:description app)))
+                   (when (:field-description app)
+                     (om/build header-field-description-widget
+                               {:header (:header app)
+                                :field-description (:field-description app)}))
+                   (when (or (:description app) (:field-description app)) (dom/hr nil))
                    (om/build header-toolbar-widget
                              {:filter-options (:filter-options app)
                               :sort-options (:sort-options app)
